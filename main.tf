@@ -4,7 +4,7 @@ resource "null_resource" "clone" {
   }
 
   provisioner "local-exec" {
-    command = "rm -rf ${path.module}/${var.repo_name} || echo; git clone ${data.github_repository.repo.ssh_url} ${path.module}/${var.repo_name}"
+    command = "rm -rf ${path.module}/${var.repo_name} || echo; git clone ${data.github_repository.repo.ssh_clone_url} ${path.module}/${var.repo_name}"
   }
 }
 

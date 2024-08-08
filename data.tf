@@ -26,7 +26,7 @@ data "github_tree" "tree" {
 data "github_repository_file" "file" {
   for_each   = toset([for entry in data.github_tree.tree.entries : entry.path])
   repository = data.github_repository.repo.name
-  path       = each.value
+  file       = each.value
 }
 
 # Archive multiple files and exclude file.

@@ -32,7 +32,7 @@ data "github_repository_file" "file" {
 # Archive multiple files and exclude file.
 data "archive_file" "release_files" {
   type        = "zip"
-  output_path = "${path.module}/${var.repo_name}.${var.tag_name}.zip"
+  output_path = "${path.module}/${var.repo_name}.zip"
 
   dynamic "source" {
     for_each = toset([for entry in data.github_tree.tree.entries : entry.path])

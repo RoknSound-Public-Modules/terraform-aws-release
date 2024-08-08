@@ -41,4 +41,9 @@ data "archive_file" "release_files" {
       filename = source.key
     }
   }
+
+  source {
+    content  = data.github_branch.branch.sha
+    filename = ".git_sha"
+  }
 }

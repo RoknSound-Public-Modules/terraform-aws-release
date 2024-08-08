@@ -16,5 +16,5 @@ data "archive_file" "release_files" {
   type        = "zip"
   output_path = "${path.module}/${var.repo_name}.zip"
   source_dir  = "${path.module}/${var.repo_name}"
-  excludes    = [path.module]
+  depends_on  = [null_resource.clone]
 }

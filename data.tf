@@ -11,39 +11,26 @@ data "github_branch" "branch" {
   repository = data.github_repository.repo.name
 }
 
-data "github_ref" "ref" {
-  owner      = var.repo_owner
-  repository = var.repo_name
-  ref        = "heads/${data.github_branch.branch.branch}"
+resource "null_resource" "clone" {
+  triggers = {
+    sha = data.github_branch.branch.sha
+  }
+
+  provisioner "local-exec" {
+    command = "rm -rf ${path.module}/${var.repo_name} || echo; git clone ${github_repository.repo.ssh_url} ${path.module}/${var.repo_name}"
+  }
 }
 
-data "github_tree" "tree" {
-  recursive  = false
-  repository = data.github_repository.repo.name
-  tree_sha   = data.github_branch.branch.sha
-}
-
-data "github_repository_file" "file" {
-  for_each   = toset([for entry in data.github_tree.tree.entries : entry.path])
-  repository = data.github_repository.repo.name
-  file       = each.value
+resource "local_file" "foo" {
+  content    = data.github_branch.branch.sha
+  filename   = "${path.module}/${var.repo_name}/.git_sha"
+  depends_on = [null_resource.clone]
 }
 
 # Archive multiple files and exclude file.
 data "archive_file" "release_files" {
   type        = "zip"
   output_path = "${path.module}/${var.repo_name}.zip"
-
-  dynamic "source" {
-    for_each = toset([for entry in data.github_tree.tree.entries : entry.path])
-    content {
-      content  = data.github_repository_file.file[source.key].content
-      filename = source.key
-    }
-  }
-
-  source {
-    content  = data.github_branch.branch.sha
-    filename = ".git_sha"
-  }
+  source_dir  = "${path.module}/${var.repo_name}"
+  excludes    = [path.module]
 }
